@@ -46,7 +46,7 @@ def change_char(
                 hotel["title"] = title
             if name is not None:
                 hotel["name"] = name
-            return {"Status": "OK"}
+            return {"status": "OK"}
     return {"Error"}
 
 
