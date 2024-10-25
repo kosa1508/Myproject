@@ -47,10 +47,7 @@ def change_char(
             if name is not None:
                 hotel["name"] = name
             return {"Status": "OK"}
-    return {"error"}
-
-
-    
+    return {"Error"}
 
 
 #body, request body
@@ -76,7 +73,6 @@ def delete_hotel(hotel_id: int):
 @app.get("/")
 def func():
     return "Hello World!!!"
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
