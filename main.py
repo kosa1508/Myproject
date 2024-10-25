@@ -33,21 +33,24 @@ def change_info(
     hotels[hotel_id-1]["name"] = name
     return {"status":"OK"}
 
-@app.patch("hotels/{hotel_id}", summary = "Частичное обновление отеля")
-def change_char(
+@app.patch(
+    "/hotels/{hotel_id}",
+    summary="Частичное обновление данных об отеле",
+    description="<h1>Тут мы частично обновляем данные об отеле: можно отправить name, а можно title</h1>",
+)
+def partially_edit_hotel(
         hotel_id: int,
-        title: str | None = Body(embed = True),
-        name: str | None = Body(embed = True)
+        title: str | None = Body(None),
+        name: str | None = Body(None),
 ):
     global hotels
-    for hotel in hotels:
-        if hotel["id"] == hotel_id:
-            if title is not None:
-                hotel["title"] = title
-            if name is not None:
-                hotel["name"] = name
-            return {"status": "OK"}
-    return {"Error"}
+    hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
+    if title:
+        hotel["title"] = title
+    if name:
+        hotel["name"] = name
+    return {"status": "OK"}
+
 
 
 #body, request body
