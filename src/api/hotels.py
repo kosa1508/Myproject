@@ -1,6 +1,8 @@
-from fastapi import Query, APIRouter, Body
+from fastapi import Query, APIRouter, Body, Depends
+from typing import Annotated
 
-from Schemas.hotels import Hotel, HotelPATCH
+from src.Schemas.hotels import Hotel, HotelPATCH
+from src.api.dependencies import PaginationParams
 
 router = APIRouter(prefix  = "/hotels", tags = ["Отели"])
 
@@ -20,33 +22,19 @@ hotels = [
     description = "<h1>Введите айдишники отелей, которые хотите получить<h1>"
 )
 def get_hotels(
+        pagination: Annotated[PaginationParams, Depends()],
         id:int | None = Query(None, description = "Айдишник"),
         title: str | None = Query(None, description = "Название отеля"),
-        page:int | None = Query(None, description = "Номер страницы"),
-        per_page:int | None = Query(None, description = "Количество отелей на страницу"),
 ):
     hotels_ = []
-    if not id and not title and not per_page:
-        hotels_ = hotels
-    elif not id and not title and per_page and not page:
-        for i in range(per_page):
-            for hotel in hotels:
-                if hotel["id"] == i+1:
-                    hotels_.append(hotel)
-    elif not id and not title and per_page and page:
-        j = (page - 1) * per_page + 1
-        for i in range(j, per_page*page+1):
-            for hotel in hotels:
-                if hotel["id"] == i:
-                    hotels_.append(hotel)
-    else:
-        for hotel in hotels:
-            if id and hotel["id"] != id:
-                continue
-            if title and hotel["title"] != title:
-                continue
-            hotels_.append(hotel)
-
+    for hotel in hotels:
+        if id and hotel["id"] != id:
+            continue
+        if title and hotel["title"] != title:
+            continue
+        hotels_.append(hotel)
+    if page and per_page:
+        return hotels_[per_page*(page-1):][:per_page]
     return hotels_
 
 @router.put(
