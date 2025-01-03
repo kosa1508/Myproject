@@ -1,41 +1,61 @@
 from fastapi import Query, APIRouter, Body, Depends
+
+from sqlalchemy import insert, select, func
+
 from typing import Annotated
 
 from src.Schemas.hotels import Hotel, HotelPATCH
 from src.api.dependencies import PaginationParams
+from src.database import async_session_maker, engine
+from src.models.hotels import HotelsOrm
+from src.repositories.hotels import HotelsRepository
 
 router = APIRouter(prefix  = "/hotels", tags = ["Отели"])
 
-hotels = [
-    {"id": 1, "title": "Sochi", "name": "sochi"},
-    {"id": 2, "title": "Dubai", "name": "dubai"},
-    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-    {"id": 5, "title": "Москва", "name": "moscow"},
-    {"id": 6, "title": "Казань", "name": "kazan"},
-    {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
-]
 
 @router.get(
     "",
     summary = "Вывод отелей",
     description = "<h1>Введите айдишники отелей, которые хотите получить<h1>"
 )
-def get_hotels(
+async def get_hotels(
         pagination: Annotated[PaginationParams, Depends()],
-        id:int | None = Query(None, description = "Айдишник"),
+        location: str | None = Query(None, description = "Локация"),
         title: str | None = Query(None, description = "Название отеля"),
 ):
-    hotels_ = []
-    for hotel in hotels:
-        if id and hotel["id"] != id:
-            continue
-        if title and hotel["title"] != title:
-            continue
-        hotels_.append(hotel)
-    if page and per_page:
-        return hotels_[per_page*(page-1):][:per_page]
-    return hotels_
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_all()
+    #per_page = pagination.per_page or 5
+
+    #async with async_session_maker() as session:
+    #   query = select(HotelsOrm)
+
+    #    if location:
+    #        query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
+    #    if title:
+    #        query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
+
+    #    query = (
+    #        query
+    #        .limit(per_page)
+    #        .offset(per_page * (pagination.page - 1))
+    #    )
+
+    #    print(query.compile(compile_kwargs={"literal_bings": True}))
+    #    result = await session.execute(query)
+    #    hotels = result.scalars().all()
+    #    print(type(hotels), hotels)
+    #    return hotels
+
+
+        #hotels = result.all() - сохраняет в переменную и выводит все отели
+        #first_hotel = result.first() - сохраняет и выводит только первый объект(отель)
+        #result.one() - проверяет и выводит конкретно 1 какой-то отель
+        #result.one_or_none() - проверяет и выводит конкретно 1 или ноль отелей
+
+    #if page and per_page:
+    #return hotels_[per_page*(page-1):][:per_page]
+
 
 @router.put(
     "/{hotel_id}",
@@ -53,24 +73,22 @@ def change_info(hotel_id: int, hotel_data: Hotel):
     summary = "Добавление отелей",
     description = "<h1> Введите данные отеля, который хотите добавить <h1>"
 )
-def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     "1":{"summary": "Сочи", "value":{
             "title": "Отель Сочи 5 звезд у моря",
-            "name": "sochi_u_morya",
+            "location": "ул. Моря, 1",
         }},
     "2":{"summary": "Дубай", "value":{
             "title": "Отель Дубай у фонтана",
-            "name": "dubai_fontain",
+            "location": "ул. Шейха, 2",
         }}
 })
 ):
-    global hotels
-    hotels.append({
-        "id": hotels[-1]["id"] + 1,
-        "title": hotel_data.title,
-        "name": hotel_data.name,
-    })
-    return {"status": "OK"}
+    async with async_session_maker() as session:
+        hotel = await HotelsRepository(session).add(hotel_data)
+        await session.commit()
+
+    return {"status": "OK", "data": hotel}
 #Body позволяет уйти от Query параметров (они не подходят для фунции - post,
 #потому что отображаются в пути, в котором не должно быть информации о самом отеле)
 
@@ -96,7 +114,14 @@ def partially_edit_hotel(hotel_id: int, hotel_data: HotelPATCH):
     description = "<h1>Введите айдишник отеля, который хотите удалить<h1>"
 )
 def delete_hotel(hotel_id: int):
-    global hotels
-    hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
+    #global hotels
+    #hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
+    #return {"status": "OK"}
+
+    async with async_session_maker() as session:
+        hotel = await HotelsRepository(session).delete()
+        await session.commit()
+
     return {"status": "OK"}
+
 
