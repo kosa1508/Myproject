@@ -4,7 +4,7 @@ from sqlalchemy import insert, select, func
 
 from typing import Annotated
 
-from src.Schemas.hotels import Hotel, HotelPATCH
+from src.Schemas.hotels import Hotel, HotelPATCH, HotelAdd
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
 from src.models.hotels import HotelsOrm
@@ -70,30 +70,25 @@ async def get_hotels(
     summary = "Полное изменение отелей",
     description = "<h1>Введите айдишник отеля, который хотите изменить и все данные для него<h1>"
 )
-async def edit_hotel(hotel_id: int, hotel_data: Hotel):
+async def edit_hotel(hotel_id: int, hotel_data: HotelAdd):
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(hotel_data, id=hotel_id)
         await session.commit()
     return {"status":"OK"}
 
+
 @router.get("/{hotel_id}",)
-async def get_hotel(
-        hotel_id: int,
-        location: str | None = Query(None, description = "Локация"),
-        title: str | None = Query(None, description = "Название отеля"),
-):
+async def get_hotel(hotel_id: int):
     async with async_session_maker() as session:
-        return await HotelsRepository(session).get_one(
-            hotel_id=hotel_id,
-            location=location,
-            title=title,
-        )
+        return await HotelsRepository(session).get_one_or_none(id=hotel_id)
+
+
 @router.post(
     "",
     summary = "Добавление отелей",
     description = "<h1> Введите данные отеля, который хотите добавить <h1>"
 )
-async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+async def create_hotel(hotel_data: HotelAdd = Body(openapi_examples={
     "1":{"summary": "Сочи", "value":{
             "title": "Отель Сочи 5 звезд у моря",
             "location": "ул. Моря, 1",
