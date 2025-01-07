@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 class RoomAdd(BaseModel):
     hotel_id: int
     title: str
-    description: str | None = Field(None)
+    description: str | None = None
     price: int
     quantity: int
 
@@ -12,7 +12,7 @@ class Room(RoomAdd):
 
 class RoomPATCH(BaseModel):
     hotel_id: int
-    title: str | None = Field(None),
-    description: str | None = Field(None)
-    price: int | None = Field(None)
-    quantity: int | None = Field(None)
+    title: str | None = None
+    description: str | None = None
+    price: int | None = None
+    quantity: int | None = None
