@@ -8,5 +8,5 @@ class Hotel(HotelAdd):
     id: int
 
 class HotelPATCH(BaseModel):
-    title: str | None = Field(None),
+    title: str | None = Field(None)
     location: str | None = Field(None)

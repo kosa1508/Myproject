@@ -16,7 +16,7 @@ router = APIRouter(prefix  = "/hotels", tags = ["Отели"])
 @router.get(
     "",
     summary = "Вывод отелей",
-    description = "<h1>Введите айдишники отелей, которые хотите получить<h1>"
+    description = "<h1>Введите айдишники отелей, которые хотите получить</h1>"
 )
 async def get_hotels(
         pagination: PaginationDep,
@@ -68,7 +68,7 @@ async def get_hotels(
 @router.put(
     "/{hotel_id}",
     summary = "Полное изменение отелей",
-    description = "<h1>Введите айдишник отеля, который хотите изменить и все данные для него<h1>"
+    description = "<h1>Введите айдишник отеля, который хотите изменить и все данные для него</h1>"
 )
 async def edit_hotel(hotel_id: int, hotel_data: HotelAdd):
     async with async_session_maker() as session:
@@ -86,7 +86,7 @@ async def get_hotel(hotel_id: int):
 @router.post(
     "",
     summary = "Добавление отелей",
-    description = "<h1> Введите данные отеля, который хотите добавить <h1>"
+    description = "<h1> Введите данные отеля, который хотите добавить </h1>"
 )
 async def create_hotel(hotel_data: HotelAdd = Body(openapi_examples={
     "1":{"summary": "Сочи", "value":{
@@ -110,7 +110,7 @@ async def create_hotel(hotel_data: HotelAdd = Body(openapi_examples={
 @router.patch(
     "/{hotel_id}",
     summary = "Частичное изменение отелей",
-    description = "<h1>Введите айдишник отеля, который хотите изменить и данные, которые хотите изменить<h1>"
+    description = "<h1>Введите айдишник отеля, который хотите изменить и данные, которые хотите изменить</h1>"
 )
 async def partially_edit_hotel(hotel_id: int, hotel_data: HotelPATCH):
     #global hotels
@@ -129,7 +129,7 @@ async def partially_edit_hotel(hotel_id: int, hotel_data: HotelPATCH):
 @router.delete(
     "/{hotel_id}",
     summary = "Удаление отелей",
-    description = "<h1>Введите айдишник отеля, который хотите удалить<h1>"
+    description = "<h1>Введите айдишник отеля, который хотите удалить</h1>"
 )
 async def delete_hotel(hotel_id: int):
     #global hotels
