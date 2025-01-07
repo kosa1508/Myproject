@@ -67,8 +67,8 @@ async def get_hotels(
 
 @router.put(
     "/{hotel_id}",
-    summary = "Полное изменение отелей",
-    description = "<h1>Введите айдишник отеля, который хотите изменить и все данные для него</h1>"
+    summary = "Полное изменение отеля",
+    description = "<h1>Введите айдишник отеля, который хотите изменить, и все данные для него</h1>"
 )
 async def edit_hotel(hotel_id: int, hotel_data: HotelAdd):
     async with async_session_maker() as session:
