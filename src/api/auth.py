@@ -1,11 +1,10 @@
-from fastapi import APIRouter, HTTPException, Response, Request
+from fastapi import APIRouter, HTTPException, Response
 
+from src.api.dependencies import UserIdDep
 from src.repositories.users import UsersRepository
 from src.database import async_session_maker
 from src.Schemas.users import UserRequestAdd, UserAdd
 from src.services.auth import AuthService
-from src.services.cooki import cookie_parser
-from pydantic import EmailStr
 
 router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
 
@@ -40,18 +39,20 @@ async def login_user(
 
     return {"status": "OK"}
 
-@router.get("/only_auth")
-async def login_user(
-    request: Request,
-    #access_token:str
-    email: EmailStr
+@router.get("/me")
+async def get_me(
+    user_id: UserIdDep
 ):
-    request = get_one_or_none(email)
-    #request = cookie_parser(access_token)
-    #access_token = request or None
     async with async_session_maker() as session:
-        result = await UsersRepository(session).add(new_user_data)
-        await session.commit()
+        user = await UsersRepository(session).get_one_or_none(id=user_id)
+        return user
+
+@router.post("/logout")
+async def logout(
+        response: Response,
+):
+    response.delete_cookie("access_token")
+    return {"status":"success"}
 
 
 
