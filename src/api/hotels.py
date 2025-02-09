@@ -1,68 +1,61 @@
+from datetime import date
+
 from fastapi import Query, APIRouter, Body, Depends
 
-from sqlalchemy import insert, select, func
-
-from typing import Annotated
-
-from src.Schemas.hotels import Hotel, HotelPATCH, HotelAdd
+from src.Schemas.hotels import HotelPATCH, HotelAdd
 from src.api.dependencies import PaginationDep, DBDep
-from src.database import async_session_maker, engine
-from src.models.hotels import HotelsOrm
-from src.repositories.hotels import HotelsRepository
+
 
 router = APIRouter(prefix  = "/hotels", tags = ["Отели"])
 
-
-@router.get(
-    "",
-    summary = "Вывод отелей",
-    description = "<h1>Введите айдишники отелей, которые хотите получить</h1>"
+"""@router.get(
+    "/now",
+    summary = "Вывод отелей, в которых в желаемый период времени есть хотя бы один свободный номер",
+    description = "<h1>Введите даты, на которые хотите забронировать себе номер</h1>"
 )
-async def get_hotels(
+async def get_filtered_hotels(
         pagination: PaginationDep,
         db: DBDep,
         location: str | None = Query(None, description = "Локация"),
         title: str | None = Query(None, description = "Название отеля"),
+        date_from: date = Query(example="2025-01-01"),
+        date_to: date = Query(example="2025-03-03"),
 ):
     per_page = pagination.per_page or 5
-    return await db.hotels.get_all(
+    return await db.hotels.get_filtered_by_time(
+        date_from=date_from,
+        date_to=date_to,
+    )"""
+
+@router.get(
+    "",
+    summary="Вывод отелей",
+    description="<h1>Введите айдишники отелей, которые хотите получить</h1>"
+)
+async def get_hotels(
+    pagination: PaginationDep,
+    db: DBDep,
+    location: str | None = Query(None, description="Локация"),
+    title: str | None = Query(None, description="Название отеля"),
+    date_from:date = Query(example="2025-01-01"),
+    date_to: date = Query(example="2025-03-03"),
+):
+    per_page = pagination.per_page or 5
+    return await db.hotels.get_filtered_by_time(
+        date_from=date_from,
+        date_to=date_to,
         location=location,
         title=title,
         limit=per_page or 5,
         offset=per_page * (pagination.page - 1)
     )
+   # return await db.hotels.get_all(
+    #location=location,
+    #title=title,
+    #limit=per_page or 5,
+    #offset=per_page * (pagination.page - 1)
+    #)
 
-
-    #per_page = pagination.per_page or 5
-
-    #async with async_session_maker() as session:
-    #   query = select(HotelsOrm)
-
-    #    if location:
-    #        query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
-    #    if title:
-    #        query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
-
-    #    query = (
-    #        query
-    #        .limit(per_page)
-    #        .offset(per_page * (pagination.page - 1))
-    #    )
-
-    #    print(query.compile(compile_kwargs={"literal_bings": True}))
-    #    result = await session.execute(query)
-    #    hotels = result.scalars().all()
-    #    print(type(hotels), hotels)
-    #    return hotels
-
-
-        #hotels = result.all() - сохраняет в переменную и выводит все отели
-        #first_hotel = result.first() - сохраняет и выводит только первый объект(отель)
-        #result.one() - проверяет и выводит конкретно 1 какой-то отель
-        #result.one_or_none() - проверяет и выводит конкретно 1 или ноль отелей
-
-    #if page and per_page:
-    #return hotels_[per_page*(page-1):][:per_page]
 
 
 @router.put(
