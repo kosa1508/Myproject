@@ -14,12 +14,12 @@ async def add_booking(
         db: DBDep,
         user_id: UserIdDep,
         booking_data: BookingRequestAdd = Body(openapi_examples={
-    "1":{"summary":"Бронь 1", "values":{
+    "1":{"summary":"Бронь 1", "value":{
         "room_id": 4,
         "date_from": "2024-01-08",
         "date_to": "2024-01-15"
     }},
-    "2":{"summary": "Бронь 2", "values":{
+    "2":{"summary": "Бронь 2", "value":{
         "room_id": 5,
         "date_from": "2024-01-05",
         "date_to": "2024-01-14"

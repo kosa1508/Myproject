@@ -8,29 +8,10 @@ from src.api.dependencies import PaginationDep, DBDep
 
 router = APIRouter(prefix  = "/hotels", tags = ["Отели"])
 
-"""@router.get(
-    "/now",
-    summary = "Вывод отелей, в которых в желаемый период времени есть хотя бы один свободный номер",
-    description = "<h1>Введите даты, на которые хотите забронировать себе номер</h1>"
-)
-async def get_filtered_hotels(
-        pagination: PaginationDep,
-        db: DBDep,
-        location: str | None = Query(None, description = "Локация"),
-        title: str | None = Query(None, description = "Название отеля"),
-        date_from: date = Query(example="2025-01-01"),
-        date_to: date = Query(example="2025-03-03"),
-):
-    per_page = pagination.per_page or 5
-    return await db.hotels.get_filtered_by_time(
-        date_from=date_from,
-        date_to=date_to,
-    )"""
-
 @router.get(
     "",
     summary="Вывод отелей",
-    description="<h1>Введите айдишники отелей, которые хотите получить</h1>"
+    description="<h1>Вот все отели, свободные в данный промежуток времени</h1>"
 )
 async def get_hotels(
     pagination: PaginationDep,
